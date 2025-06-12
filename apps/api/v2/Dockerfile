@@ -1,29 +1,51 @@
-FROM node:20-alpine AS build
+# Multi-stage Dockerfile for Cal.com API v2
 
-ARG DATABASE_DIRECT_URL
-ARG DATABASE_URL
+# Stage 1: Dependencies
+FROM node:20-alpine AS base
 
-WORKDIR /calcom
+# Install dependencies for node-gyp
+RUN apk add --no-cache python3 make g++ libc6-compat
 
-RUN set -eux;
-RUN ln -s /usr/lib/libssl.so.3 /lib/libssl.so.3
+WORKDIR /app
 
-ENV NODE_ENV="production"
-ENV NODE_OPTIONS="--max-old-space-size=8192"
-ENV DATABASE_DIRECT_URL=${DATABASE_DIRECT_URL}
-ENV DATABASE_URL=${DATABASE_URL}
+# Copy package files
+COPY package.json yarn.lock* ./
+COPY apps/api/v2/package.json ./apps/api/v2/
+COPY packages/*/package.json ./packages/*/
+COPY turbo.json ./
 
+# Install dependencies
+RUN yarn install --frozen-lockfile
+
+# Copy source code
 COPY . .
 
-RUN yarn install
+# Generate Prisma Client
+RUN npx turbo run @calcom/prisma#generate
 
-# Build prisma schema and make sure that it is linked to v2 node_modules
-RUN yarn workspace @calcom/api-v2 run generate-schemas
-RUN rm -rf apps/api/v2/node_modules
-RUN yarn install
+# Build API v2
+RUN npx turbo run @calcom/api-v2#build
 
-RUN yarn workspace @calcom/api-v2 run build
+# Production image
+FROM node:20-alpine AS runner
+RUN apk add --no-cache libc6-compat
 
-EXPOSE 80
+WORKDIR /app
 
-CMD [ "yarn", "workspace", "@calcom/api-v2", "start:prod"]
+# Copy built application
+COPY --from=base /app/node_modules ./node_modules
+COPY --from=base /app/apps ./apps
+COPY --from=base /app/packages ./packages
+COPY --from=base /app/package.json ./
+COPY --from=base /app/turbo.json ./
+
+# Create non-root user
+RUN addgroup -g 1001 -S nodejs
+RUN adduser -S nodejs -u 1001
+USER nodejs
+
+# Use environment variable for port, default to 5555
+ENV PORT=${API_PORT:-5555}
+EXPOSE $PORT
+
+CMD ["yarn", "workspace", "@calcom/api-v2", "start"]

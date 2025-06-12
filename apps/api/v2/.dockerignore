@@ -1,2 +1,50 @@
+# Ignore node_modules as they will be installed fresh
 **/node_modules
+**/.next
 **/dist
+
+# Development files
+.env
+.env.local
+.env.development
+.env.railway
+*.log
+
+# Test files
+**/test
+**/tests
+**/*.test.ts
+**/*.spec.ts
+**/coverage
+
+# Documentation
+**/*.md
+!README.md
+
+# Git files
+.git
+.gitignore
+
+# IDE files
+.vscode
+.idea
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Build artifacts from other apps (we only need api/v2)
+apps/web
+apps/api/v1
+apps/ui-playground
+example-apps
+
+# Keep only necessary packages
+!packages/prisma
+!packages/platform
+!packages/lib
+!packages/types
+!packages/config
+!packages/tsconfig

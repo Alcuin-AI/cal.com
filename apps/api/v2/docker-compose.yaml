@@ -1,12 +1,61 @@
+version: '3.8'
+
 services:
+  # PostgreSQL is commented out since you're using Supabase
+  # Uncomment if you want a local PostgreSQL for testing
+  # postgres:
+  #   image: postgres:15-alpine
+  #   container_name: calcom-api-v2-db
+  #   restart: unless-stopped
+  #   environment:
+  #     POSTGRES_USER: calcom
+  #     POSTGRES_PASSWORD: securepassword
+  #     POSTGRES_DB: calcom
+  #   volumes:
+  #     - postgres_data:/var/lib/postgresql/data
+  #   ports:
+  #     - "5432:5432"
+  #   networks:
+  #     - calcom-network
+
   redis:
-    image: redis:latest
-    container_name: redis_container
-    ports:
-      - "6379:6379"
+    image: redis:7-alpine
+    container_name: calcom-api-v2-redis
+    restart: unless-stopped
     command: redis-server --appendonly yes
     volumes:
       - redis_data:/data
+    ports:
+      - "6379:6379"
+    networks:
+      - calcom-network
+
+  api:
+    build:
+      context: ../..
+      dockerfile: apps/api/v2/Dockerfile
+    container_name: calcom-api-v2
+    restart: unless-stopped
+    ports:
+      - "${API_PORT:-5555}:${API_PORT:-5555}"
+    env_file:
+      - .env
+    environment:
+      # Override any specific values for Docker if needed
+      NODE_ENV: ${NODE_ENV:-production}
+      # Add Redis URL if your app uses it
+      REDIS_URL: redis://redis:6379
+    networks:
+      - calcom-network
+    volumes:
+      - ./logs:/app/logs
+    depends_on:
+      - redis
+
+networks:
+  calcom-network:
+    driver: bridge
 
 volumes:
+  # postgres_data:
   redis_data:
