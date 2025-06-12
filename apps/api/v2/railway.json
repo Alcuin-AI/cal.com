@@ -1,0 +1,11 @@
+{
+  "build": {
+    "builder": "NIXPACKS",
+    "buildCommand": "yarn install && yarn workspace @calcom/api-v2 build"
+  },
+  "deploy": {
+    "startCommand": "yarn workspace @calcom/api-v2 start",
+    "healthcheckPath": "/health",
+    "restartPolicyType": "ON_FAILURE"
+  }
+}
