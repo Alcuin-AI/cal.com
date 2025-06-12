@@ -1,11 +1,67 @@
 {
   "build": {
     "builder": "NIXPACKS",
-    "buildCommand": "yarn install && yarn workspace @calcom/api-v2 build"
+    "buildCommand": "yarn install && yarn workspace @calcom/api-v2 generate-schemas && yarn workspace @calcom/api-v2 build",
+    "watchPatterns": [
+      "apps/api/v2/**",
+      "packages/**"
+    ]
   },
   "deploy": {
-    "startCommand": "yarn workspace @calcom/api-v2 start",
+    "startCommand": "yarn workspace @calcom/api-v2 start:prod",
     "healthcheckPath": "/health",
-    "restartPolicyType": "ON_FAILURE"
+    "restartPolicyType": "ON_FAILURE",
+    "numReplicas": 1,
+    "region": "us-west1"
+  },
+  "envVars": {
+    "NODE_ENV": {
+      "description": "Node environment",
+      "default": "production"
+    },
+    "API_PORT": {
+      "description": "Port for the API server",
+      "default": "80"
+    },
+    "DATABASE_URL": {
+      "description": "PostgreSQL connection URL for database operations",
+      "required": true
+    },
+    "DATABASE_READ_URL": {
+      "description": "PostgreSQL read replica URL (can be same as DATABASE_URL)",
+      "required": true
+    },
+    "DATABASE_WRITE_URL": {
+      "description": "PostgreSQL write URL (can be same as DATABASE_URL)",
+      "required": true
+    },
+    "NEXTAUTH_SECRET": {
+      "description": "Secret for NextAuth.js authentication",
+      "required": true
+    },
+    "JWT_SECRET": {
+      "description": "Secret for JWT token generation",
+      "required": true
+    },
+    "CALCOM_LICENSE_KEY": {
+      "description": "Cal.com license key",
+      "required": true
+    },
+    "WEB_APP_URL": {
+      "description": "URL of the Cal.com web application",
+      "required": true
+    },
+    "API_URL": {
+      "description": "URL of this API service",
+      "required": true
+    },
+    "API_KEY_PREFIX": {
+      "description": "Prefix for API keys",
+      "default": "cal_"
+    },
+    "LOG_LEVEL": {
+      "description": "Logging level (DEBUG, INFO, WARN, ERROR)",
+      "default": "INFO"
+    }
   }
 }

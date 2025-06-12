@@ -1,0 +1,48 @@
+# Development files
+.env
+.env.local
+.env.development
+*.log
+
+# Test files
+test/
+tests/
+*.test.ts
+*.spec.ts
+jest.config.json
+jest-e2e.json
+coverage/
+
+# Documentation
+*.md
+!README.md
+docs/
+
+# Development dependencies
+.eslintrc*
+.prettierrc*
+.snyk
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Build artifacts (will be built on Railway)
+dist/
+.next/
+out/
+
+# Git files
+.git/
+.gitignore
+
+# Docker files (Railway uses Nixpacks)
+Dockerfile
+docker-compose.yaml
+.dockerignore

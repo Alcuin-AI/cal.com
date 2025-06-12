@@ -31,7 +31,8 @@
     "generate-schemas": "yarn prisma generate && yarn prisma format",
     "copy-swagger-module": "ts-node -r tsconfig-paths/register swagger/copy-swagger-module.ts",
     "prepare": "yarn run snyk-protect",
-    "snyk-protect": "snyk-protect"
+    "snyk-protect": "snyk-protect",
+    "railway:generate-env": "node scripts/generate-railway-env.js"
   },
   "dependencies": {
     "@axiomhq/winston": "^1.2.0",
